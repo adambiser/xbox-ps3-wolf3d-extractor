@@ -6,6 +6,7 @@ PS3 tools worth mentioning:
 - VLC - to play MSF sound files.
 """
 import argparse
+# import zlib
 import io
 import os
 import struct
@@ -48,6 +49,10 @@ def extract_entries(f, entry_headers, output_path):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "wb") as ef:
             ef.write(entry_data)
+        # .gfx files are zlib compressed streams.
+        # if entry_file.endswith(".gfx"):
+        #     with open(output_file + ".data", "wb") as ef:
+        #         ef.write(zlib.decompress(entry_data[8:], wbits=zlib.MAX_WBITS))
 
 
 def open_data_stream(file):
@@ -55,6 +60,7 @@ def open_data_stream(file):
     # Check whether PS3 or XBOX file.
     is_xbox = f.read(4) == b"LIVE"
     if not is_xbox:
+        f.seek(0)
         return f
     print("XBOX file detected.  Reading data into a memory stream.  Entry offsets won't match file offsets.")
     # When reading an XBOX file, read it into memory, skipping the FAT lookups(?) along the way.
